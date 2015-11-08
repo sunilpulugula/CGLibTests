@@ -22,7 +22,7 @@ public class JobsInvocationHandlerDemo {
         enhancer.setSuperclass(JobsManager.class);
         enhancer.setCallback(new InvocationHandler() {
             @Override
-            public Object invoke(Object obj, Method method, Object[] objects) throws Throwable {
+            public Object invoke(Object obj, Method method, Object[] args) throws Throwable {
                 // redirecting all object class method calls to its super
                 if (method.getDeclaringClass().equals(Object.class)) {
                     return NoOp.INSTANCE;
@@ -54,8 +54,8 @@ public class JobsInvocationHandlerDemo {
         // jobs count will not equal with  proxy method call
         Assert.assertNotEquals(new JobsManager().getCount(), jobsManager.getCount());
 
-        // here both should be true.
-        //Assert.assertEquals(null, jobsManager.createJob("job4"));
+         //which will go end less loop if you uncomment above method.invoke
+        //Assert.assertEquals(true, jobsManager.createJob("job4"));
 
 
 
