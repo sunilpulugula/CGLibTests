@@ -25,9 +25,8 @@ public class JobsManager {
         return jobs.size();
     }
 
-    public List<String> createJob(String name) {
-        jobs.add(name);
-        return jobs;
+    public boolean createJob(String name) {
+        return jobs.add(name);
     }
 
 
