@@ -12,39 +12,41 @@ import net.sf.cglib.proxy.*;
  * @author <a href="mailto:sunil.pulugula@wavemaker.com">Sunil Kumar</a>
  * @since 8/11/15
  */
-public class JobsInterceptorWithCallBackFilter {
+public class JobsInterceptorWithCallBackHelper {
 
-    public static void main(final String[] args) {
+    public static void main(String[] args) {
 
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(JobsManager.class);
-        enhancer.setCallbackFilter(new CallbackFilter() {
+
+        CallbackHelper callbackHelper = new CallbackHelper(JobsManager.class, new Class[0]) {
             @Override
-            public int accept(Method method) {
+            protected Object getCallback(Method method) {
                 if (method.getDeclaringClass().equals(Object.class)) {
-                    return 0;
+                    return NoOp.INSTANCE;
                 }
                 if (method.getName().equals("getAllJobs")) {
-                    return 1;
+                    return new FixedValue() {
+                        @Override
+                        public Object loadObject() throws Exception {
+                            return Arrays.asList(new String[]{"job5", "job6", "job7"});
+                        }
+                    };
                 }
                 if (method.getName().equals("getCount") || method.getName().equals("createJob")) {
-                    return 2;
+                    return new MethodInterceptor() {
+                        @Override
+                        public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+                            return methodProxy.invokeSuper(obj, args);
+                        }
+                    };
                 }
-                return 0;
+                return NoOp.INSTANCE;
             }
-        });
+        };
 
-        enhancer.setCallbacks(new Callback[]{NoOp.INSTANCE, new FixedValue() {
-            @Override
-            public Object loadObject() throws Exception {
-                return Arrays.asList(new String[]{"job5", "job6", "job7"});
-            }
-        }, new MethodInterceptor() {
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-                return methodProxy.invokeSuper(obj, args);
-            }
-        }});
+        enhancer.setCallbackFilter(callbackHelper);
+        enhancer.setCallbacks(callbackHelper.getCallbacks());
 
         // jobsManager is proxified class object
         JobsManager jobsManager = (JobsManager) enhancer.create();
@@ -57,7 +59,7 @@ public class JobsInterceptorWithCallBackFilter {
 
         // here both should be true.
         Assert.assertEquals(true, jobsManager.createJob("job4"));
-
-
     }
 }
+
+
