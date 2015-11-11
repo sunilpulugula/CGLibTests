@@ -11,7 +11,7 @@ import net.sf.cglib.proxy.InvocationHandler;
 import net.sf.cglib.proxy.NoOp;
 
 /**
- * @author <a href="mailto:sunil.pulugula@wavemaker.com">Sunil Kumar</a>
+ * @author <a href="mailto:psunil1278@gmail.com">Sunil Kumar</a>
  * @since 8/11/15
  */
 public class JobsInvocationHandlerDemo {
